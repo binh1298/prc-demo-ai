@@ -47,7 +47,7 @@ export const FileUploadContainer = () => {
           tabIndex="0"
           multiple=""
           accept=".jpg,.jpeg,.png,.gif"
-          aria-label="Change Avatar"
+          aria-label="Change Image"
           onChange={onImageChange}
         />
       </div>
