@@ -5,6 +5,7 @@ import CanvasComponent from './CanvasComponent';
 export const FileUploadContainer = () => {
   const [selectedImage, setSelectedImage] = useState('');
   const [uploadedImage, setuploadedImage] = useState();
+  const [service, setService] = useState('detect');
 
   const uploadImageToFirebase = (file) => {
     const imageName = Math.random() * 1000 + '';
@@ -37,10 +38,15 @@ export const FileUploadContainer = () => {
       uploadImageToFirebase(file);
     }
   };
+
+  const onServiceChange = (e) => {
+    setService(e.target.value);
+  }
+
   return (
     <div>
       <div >
-        {uploadedImage ? <CanvasComponent imageUrl={uploadedImage} /> : null}
+        {uploadedImage ? <CanvasComponent service={service} imageUrl={uploadedImage} /> : null}
         <p>Upload Image</p>
         <input
           type="file"
@@ -50,6 +56,11 @@ export const FileUploadContainer = () => {
           aria-label="Change Image"
           onChange={onImageChange}
         />
+        <select onChange={onServiceChange}>
+          <option value='detect'>Detect objects</option>
+          <option value='analyze?visualFeatures=description,tags'>Describe Image</option>
+          {/* <option value='ocr'>Image to Text</option> */}
+        </select>
       </div>
     </div>
   );

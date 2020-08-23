@@ -1,17 +1,35 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { post } from '../utils/ApiCaller';
+import { Chip } from '@material-ui/core';
 
-const CanvasComponent = ({ imageUrl }) => {
+const CanvasComponent = ({ imageUrl, service }) => {
   const canvasElement = useRef(null);
   const imageElement = useRef(null);
   const [metadata, setMetadata] = useState();
+  const [captions, setCaptions] = useState([]);
+  const [tags, setTags] = useState([]);
+  // const [lang, setLang] = useState('');
+  // const [sentences, setSentences] = useState([]);
+
   const sendImageToAIService = async (fileUrl) => {
-    const endpoint = 'https://computervisiondemo123123.cognitiveservices.azure.com/vision/v3.0/detect';
+    const endpoint = `https://computervisiondemo123123.cognitiveservices.azure.com/vision/v3.0/${service}`;
     const response = await post(endpoint, { url: fileUrl });
-    console.log(response?.data?.objects);
+    console.log(response?.data);
     setMetadata(response?.data?.metadata);
-    updateCanvas(response?.data?.objects);
+    if (service == 'detect') {
+      setCaptions([]);
+      setTags([]);
+      updateCanvas(response?.data?.objects);
+    } else if (service.indexOf('description')) {
+      setCaptions(response?.data?.description?.captions);
+      setTags(response?.data?.tags);
+    }
+    // else if (service == 'ocr') {
+    //   setLang(response?.data?.language);
+    //   setSentences(response?.data?.regions?.lines);
+    // }
+
   }
 
   const updateCanvas = (objects) => {
@@ -42,7 +60,25 @@ const CanvasComponent = ({ imageUrl }) => {
         ref={canvasElement}
         width={metadata?.width + 60}
         height={metadata?.height + 60} />
-    </div>
+
+      {
+        captions.map((caption) =>
+          <p>{caption.text}: {caption.confidence.toFixed(2) * 100}%</p>
+        )
+      }
+      {
+        tags.map((tag) => (
+          <Chip size='medium' label={`${tag.name}:${(tag.confidence * 100).toFixed(2)}%`} />
+        ))
+      }
+      {/* <div>
+        {sentences.map((sentence) => {
+          return sentence.words.map((word) =>
+            <span>{word.text} </span>
+          )
+        })}
+      </div> */}
+    </div >
   );
 }
 
